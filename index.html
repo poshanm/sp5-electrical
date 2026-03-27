@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SP5 Electrical">
+<meta name="theme-color" content="#0F1923">
+<title>SP5 Electrical Management</title>
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   ★  ONLY THIS SECTION CHANGE KARO — BAAKI MAT CHHUONA  ★
+   ══════════════════════════════════════════════════════════
+
+   Agar dobara deploy karo Apps Script mein aur URL badle,
+   sirf niche APP_URL update karo aur GitHub par push karo.
+   ══════════════════════════════════════════════════════════ */
+
+const APP_CONFIG = {
+  APP_URL:   'https://script.google.com/macros/s/AKfycbzE6zjlrA2iTSYsG4upYnk7Gv0PQduWv74r4cRBU-EGPEUnQBrclQl8Pf--FX44xdeeEg/exec',
+  APP_NAME:  'SP5 Electrical Management',
+  APP_SHORT: 'SP5 Elec',
+  DEPT:      'SP-5 Screening Plant · Electrical Department',
+};
+
+/* ══════════════════════════════════════════════════════════
+   ★  UPAR TAK HI CHANGE KARO — NICHE MAT CHHUONA        ★
+   ══════════════════════════════════════════════════════════ */
+</script>
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;width:100%;overflow:hidden;-webkit-text-size-adjust:100%}
+body{
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  background:#0F1923;color:#E2E8F0;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* Full screen iframe — fills entire viewport */
+#app-frame{
+  position:fixed;
+  top:0;left:0;right:0;bottom:0;
+  width:100%;height:100%;
+  border:none;
+  background:#0F1923;
+  display:block;
+}
+
+/* Splash shown while iframe loads */
+#splash{
+  position:fixed;inset:0;
+  background:#0F1923;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:16px;z-index:100;
+  transition:opacity .4s ease;
+}
+#splash.hide{opacity:0;pointer-events:none}
+
+.splash-bolt{
+  font-size:64px;line-height:1;
+  animation:pulse 1.5s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.7;transform:scale(.95)}}
+
+.splash-title{font-size:22px;font-weight:800;color:#fff;letter-spacing:-.02em}
+.splash-dept{font-size:12px;color:#64748B;letter-spacing:.04em;margin-top:2px;text-align:center;padding:0 20px}
+
+.splash-bar{
+  width:180px;height:3px;
+  background:rgba(255,255,255,.08);
+  border-radius:2px;overflow:hidden;
+  margin-top:8px;
+}
+.splash-progress{
+  height:100%;width:0%;
+  background:linear-gradient(90deg,#2563EB,#3B82F6);
+  border-radius:2px;
+  transition:width .1s linear;
+}
+.splash-msg{font-size:12px;color:#64748B}
+</style>
+</head>
+<body>
+
+<!-- Splash screen while app loads -->
+<div id="splash">
+  <div class="splash-bolt">⚡</div>
+  <div>
+    <div class="splash-title" id="splashTitle">SP5 Electrical</div>
+    <div class="splash-dept" id="splashDept">Loading...</div>
+  </div>
+  <div class="splash-bar"><div class="splash-progress" id="splashBar"></div></div>
+  <div class="splash-msg" id="splashMsg">Connecting to server...</div>
+</div>
+
+<!-- The actual app runs here — full screen, no chrome -->
+<iframe
+  id="app-frame"
+  sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-top-navigation"
+  allow="camera; microphone"
+></iframe>
+
+<script>
+(function() {
+  // Set splash text from config
+  document.getElementById('splashTitle').textContent = APP_CONFIG.APP_NAME;
+  document.getElementById('splashDept').textContent  = APP_CONFIG.DEPT;
+
+  const bar  = document.getElementById('splashBar');
+  const msg  = document.getElementById('splashMsg');
+  const splash = document.getElementById('splash');
+  const frame  = document.getElementById('app-frame');
+
+  // Animate progress bar
+  let pct = 0;
+  const msgs = [
+    [0,  'Connecting to server...'],
+    [30, 'Loading data...'],
+    [60, 'Preparing interface...'],
+    [85, 'Almost ready...'],
+  ];
+  const timer = setInterval(() => {
+    pct = Math.min(pct + (pct < 70 ? 2 : 0.5), 95);
+    bar.style.width = pct + '%';
+    const m = msgs.slice().reverse().find(([p]) => pct >= p);
+    if (m) msg.textContent = m[1];
+  }, 80);
+
+  // Load the app
+  frame.src = APP_CONFIG.APP_URL;
+
+  frame.addEventListener('load', () => {
+    clearInterval(timer);
+    bar.style.width = '100%';
+    msg.textContent = 'Ready!';
+    setTimeout(() => splash.classList.add('hide'), 300);
+    setTimeout(() => splash.style.display = 'none', 750);
+  });
+
+  // Fallback if load event doesn't fire (some browsers)
+  setTimeout(() => {
+    if (!splash.classList.contains('hide')) {
+      clearInterval(timer);
+      bar.style.width = '100%';
+      splash.classList.add('hide');
+      setTimeout(() => splash.style.display = 'none', 500);
+    }
+  }, 8000);
+})();
+</script>
+
+<!-- PWA Manifest — makes "Add to Home Screen" work properly -->
+<script>
+(function() {
+  const manifest = {
+    name: APP_CONFIG.APP_NAME,
+    short_name: APP_CONFIG.APP_SHORT,
+    description: APP_CONFIG.DEPT,
+    start_url: './',
+    display: 'standalone',
+    orientation: 'any',
+    background_color: '#0F1923',
+    theme_color: '#0F1923',
+    icons: [{
+      src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%230F1923'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-size='320'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E",
+      sizes: '512x512',
+      type: 'image/svg+xml',
+      purpose: 'any maskable'
+    }]
+  };
+  const blob = new Blob([JSON.stringify(manifest)], {type: 'application/manifest+json'});
+  const link = document.createElement('link');
+  link.rel  = 'manifest';
+  link.href = URL.createObjectURL(blob);
+  document.head.appendChild(link);
+})();
+</script>
+
+</body>
+</html>
