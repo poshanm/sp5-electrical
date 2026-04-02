@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -7,25 +7,19 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="SP5 Electrical">
-<meta name="theme-color" content="#0F1923">
+<meta name="theme-color" content="#0F1923" id="themeColorMeta">
 <title>SP5 Electrical Management</title>
 
 <script>
 /* ══════════════════════════════════════════════════════════
    ★  ONLY THIS SECTION CHANGE KARO — BAAKI MAT CHHUONA  ★
-   ══════════════════════════════════════════════════════════
-
-   Agar dobara deploy karo Apps Script mein aur URL badle,
-   sirf niche APP_URL update karo aur GitHub par push karo.
    ══════════════════════════════════════════════════════════ */
-
 const APP_CONFIG = {
   APP_URL:   'https://script.google.com/macros/s/AKfycbzE6zjlrA2iTSYsG4upYnk7Gv0PQduWv74r4cRBU-EGPEUnQBrclQl8Pf--FX44xdeeEg/exec',
   APP_NAME:  'SP5 Electrical Management',
   APP_SHORT: 'SP5 Elec',
   DEPT:      'SP-5 Screening Plant · Electrical Department',
 };
-
 /* ══════════════════════════════════════════════════════════
    ★  UPAR TAK HI CHANGE KARO — NICHE MAT CHHUONA        ★
    ══════════════════════════════════════════════════════════ */
@@ -34,60 +28,155 @@ const APP_CONFIG = {
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;width:100%;overflow:hidden;-webkit-text-size-adjust:100%}
-body{
-  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
-  background:#0F1923;color:#E2E8F0;
-  -webkit-font-smoothing:antialiased;
+
+/* ── THEMES ── */
+:root,[data-theme="dark"]{
+  --app-bg:#0F1923;
+  --surf:#162032;--border:#1e2d42;
+  --text:#E2E8F0;--muted:#64748B;
+  --accent:#3B82F6;--green:#22c55e;
+  --sans:'Segoe UI',system-ui,-apple-system,sans-serif;
+  --fs:16px;
+}
+[data-theme="light"]{
+  --app-bg:#f0f4fc;
+  --surf:#ffffff;--border:#d0d9f0;
+  --text:#1a2240;--muted:#6b7aaa;
+  --accent:#2563eb;--green:#16a34a;
 }
 
-/* Full screen iframe — fills entire viewport */
+body{
+  font-family:var(--sans);
+  background:var(--app-bg);
+  color:var(--text);
+  font-size:var(--fs);
+  -webkit-font-smoothing:antialiased;
+  /* iOS iframe scroll fix */
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+}
+
+/* ── TOPBAR with Settings button ── */
+.sp5-topbar{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  background:rgba(15,25,35,.92);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  height:48px;
+  display:flex;align-items:center;
+  padding:0 16px;
+  justify-content:space-between;
+}
+[data-theme="light"] .sp5-topbar{background:rgba(240,244,252,.92);}
+.sp5-topbar-title{
+  font-size:16px;font-weight:700;color:var(--accent);
+  display:flex;align-items:center;gap:8px;
+}
+.sp5-settings-btn{
+  background:none;border:none;color:var(--muted);
+  font-size:20px;cursor:pointer;padding:4px;
+  line-height:1;
+}
+
+/* Iframe — pushed down by topbar */
 #app-frame{
   position:fixed;
-  top:0;left:0;right:0;bottom:0;
-  width:100%;height:100%;
+  top:48px;left:0;right:0;bottom:0;
+  width:100%;height:calc(100% - 48px);
   border:none;
-  background:#0F1923;
+  background:var(--app-bg);
   display:block;
+  /* iOS iframe scroll fix */
+  overflow:scroll;
+  -webkit-overflow-scrolling:touch;
 }
 
-/* Splash shown while iframe loads */
+/* ── SPLASH ── */
 #splash{
   position:fixed;inset:0;
-  background:#0F1923;
+  background:var(--app-bg);
   display:flex;flex-direction:column;
   align-items:center;justify-content:center;
   gap:16px;z-index:100;
   transition:opacity .4s ease;
 }
 #splash.hide{opacity:0;pointer-events:none}
-
-.splash-bolt{
-  font-size:64px;line-height:1;
-  animation:pulse 1.5s ease-in-out infinite;
-}
+.splash-bolt{font-size:64px;line-height:1;animation:pulse 1.5s ease-in-out infinite;}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.7;transform:scale(.95)}}
+.splash-title{font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.02em}
+.splash-dept{font-size:12px;color:var(--muted);letter-spacing:.04em;margin-top:2px;text-align:center;padding:0 20px}
+.splash-bar{width:180px;height:3px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;margin-top:8px;}
+.splash-progress{height:100%;width:0%;background:linear-gradient(90deg,#2563EB,#3B82F6);border-radius:2px;transition:width .1s linear;}
+.splash-msg{font-size:12px;color:var(--muted);}
 
-.splash-title{font-size:22px;font-weight:800;color:#fff;letter-spacing:-.02em}
-.splash-dept{font-size:12px;color:#64748B;letter-spacing:.04em;margin-top:2px;text-align:center;padding:0 20px}
-
-.splash-bar{
-  width:180px;height:3px;
-  background:rgba(255,255,255,.08);
-  border-radius:2px;overflow:hidden;
-  margin-top:8px;
+/* ── SETTINGS PANEL ── */
+.settings-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.6);z-index:300;
 }
-.splash-progress{
-  height:100%;width:0%;
-  background:linear-gradient(90deg,#2563EB,#3B82F6);
-  border-radius:2px;
-  transition:width .1s linear;
+.settings-overlay.show{display:block;}
+.settings-panel{
+  position:fixed;top:0;right:-300px;bottom:0;
+  width:280px;z-index:400;
+  background:var(--surf);
+  border-left:1px solid var(--border);
+  transition:right .3s ease;
+  display:flex;flex-direction:column;
 }
-.splash-msg{font-size:12px;color:#64748B}
+.settings-panel.open{right:0;}
+.settings-hdr{
+  padding:16px 16px 14px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.settings-hdr-title{font-size:17px;font-weight:700;color:var(--text);}
+.settings-close{background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;}
+.settings-body{padding:20px 16px;flex:1;overflow-y:auto;}
+.settings-sec{margin-bottom:26px;}
+.settings-lbl{
+  font-size:12px;font-weight:700;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.5px;
+  margin-bottom:12px;display:block;
+}
+/* Theme */
+.theme-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.theme-btn{
+  padding:12px;border-radius:10px;
+  font-family:var(--sans);font-size:14px;font-weight:600;
+  cursor:pointer;border:2px solid var(--border);
+  background:var(--app-bg);color:var(--muted);
+  transition:all .2s;
+}
+.theme-btn.active{border-color:var(--accent);color:var(--accent);}
+/* Font */
+.font-row{display:flex;align-items:center;gap:10px;margin-top:8px;}
+.font-val{font-size:14px;color:var(--text);min-width:36px;text-align:center;font-weight:600;}
+input[type=range]{
+  flex:1;-webkit-appearance:none;height:4px;border-radius:2px;
+  background:var(--border);outline:none;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:20px;height:20px;
+  border-radius:50%;background:var(--accent);cursor:pointer;
+}
+.font-preview{
+  margin-top:12px;padding:12px;
+  background:var(--app-bg);border-radius:10px;
+  border:1px solid var(--border);
+  color:var(--muted);line-height:1.6;
+  font-size:var(--fs);
+}
 </style>
 </head>
 <body>
 
-<!-- Splash screen while app loads -->
+<!-- TOPBAR WITH SETTINGS -->
+<div class="sp5-topbar">
+  <div class="sp5-topbar-title">⚡ SP5 Electrical</div>
+  <button class="sp5-settings-btn" onclick="openSettings()">⚙️</button>
+</div>
+
+<!-- SPLASH -->
 <div id="splash">
   <div class="splash-bolt">⚡</div>
   <div>
@@ -98,88 +187,146 @@ body{
   <div class="splash-msg" id="splashMsg">Connecting to server...</div>
 </div>
 
-<!-- The actual app runs here — full screen, no chrome -->
+<!-- APP IFRAME (pushed 48px down for topbar) -->
 <iframe
   id="app-frame"
-  sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-top-navigation"
-  allow="camera; microphone"
+  scrolling="yes"
+  sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-top-navigation-by-user-activation"
+  allow="camera; microphone; fullscreen"
 ></iframe>
 
+<!-- SETTINGS OVERLAY + PANEL -->
+<div class="settings-overlay" id="settingsOverlay" onclick="closeSettings()"></div>
+<div class="settings-panel" id="settingsPanel">
+  <div class="settings-hdr">
+    <span class="settings-hdr-title">⚙️ Settings</span>
+    <button class="settings-close" onclick="closeSettings()">✕</button>
+  </div>
+  <div class="settings-body">
+
+    <div class="settings-sec">
+      <span class="settings-lbl">🌓 Theme</span>
+      <div class="theme-row">
+        <button class="theme-btn active" id="themeBtn-dark" onclick="setTheme('dark')">🌙 Dark</button>
+        <button class="theme-btn" id="themeBtn-light" onclick="setTheme('light')">☀️ Light</button>
+      </div>
+    </div>
+
+    <div class="settings-sec">
+      <span class="settings-lbl">🔡 Font Size</span>
+      <div class="font-row">
+        <span style="font-size:12px;color:var(--muted)">A</span>
+        <input type="range" id="fontSlider" min="13" max="20" step="1" value="16"
+               oninput="setFontSize(this.value)">
+        <span style="font-size:18px;color:var(--muted)">A</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:4px;">
+        <span style="font-size:11px;color:var(--muted)">Chhota</span>
+        <span class="font-val" id="fontVal">16px</span>
+        <span style="font-size:11px;color:var(--muted)">Bada</span>
+      </div>
+      <div class="font-preview" id="fontPreview">
+        ⚡ SP5 Electrical Management — Motor details, equipment status preview text.
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <script>
-(function() {
-  // Set splash text from config
-  document.getElementById('splashTitle').textContent = APP_CONFIG.APP_NAME;
-  document.getElementById('splashDept').textContent  = APP_CONFIG.DEPT;
+const PREF_KEY = 'sp5_prefs_v1';
 
-  const bar  = document.getElementById('splashBar');
-  const msg  = document.getElementById('splashMsg');
-  const splash = document.getElementById('splash');
-  const frame  = document.getElementById('app-frame');
+// ── PREFS ──
+function loadPrefs(){
+  try{
+    const p=JSON.parse(localStorage.getItem(PREF_KEY)||'{}');
+    if(p.theme)setTheme(p.theme,true);
+    if(p.fontSize)setFontSize(p.fontSize,true);
+  }catch(e){}
+}
+function savePrefs(){
+  try{
+    const theme=document.documentElement.getAttribute('data-theme')||'dark';
+    const fs=parseInt(document.getElementById('fontSlider').value)||16;
+    localStorage.setItem(PREF_KEY,JSON.stringify({theme,fontSize:fs}));
+  }catch(e){}
+}
 
-  // Animate progress bar
-  let pct = 0;
-  const msgs = [
-    [0,  'Connecting to server...'],
-    [30, 'Loading data...'],
-    [60, 'Preparing interface...'],
-    [85, 'Almost ready...'],
-  ];
-  const timer = setInterval(() => {
-    pct = Math.min(pct + (pct < 70 ? 2 : 0.5), 95);
-    bar.style.width = pct + '%';
-    const m = msgs.slice().reverse().find(([p]) => pct >= p);
-    if (m) msg.textContent = m[1];
-  }, 80);
+// ── SETTINGS ──
+function openSettings(){
+  document.getElementById('settingsPanel').classList.add('open');
+  document.getElementById('settingsOverlay').classList.add('show');
+}
+function closeSettings(){
+  document.getElementById('settingsPanel').classList.remove('open');
+  document.getElementById('settingsOverlay').classList.remove('show');
+}
+function setTheme(t,noSave){
+  document.documentElement.setAttribute('data-theme',t);
+  document.getElementById('themeBtn-dark').classList.toggle('active',t==='dark');
+  document.getElementById('themeBtn-light').classList.toggle('active',t==='light');
+  document.getElementById('themeColorMeta').content=t==='dark'?'#0F1923':'#f0f4fc';
+  if(!noSave)savePrefs();
+}
+function setFontSize(v,noSave){
+  v=parseInt(v)||16;
+  document.documentElement.style.setProperty('--fs',v+'px');
+  document.getElementById('fontSlider').value=v;
+  document.getElementById('fontVal').textContent=v+'px';
+  document.getElementById('fontPreview').style.fontSize=v+'px';
+  if(!noSave)savePrefs();
+}
 
-  // Load the app
-  frame.src = APP_CONFIG.APP_URL;
-
-  frame.addEventListener('load', () => {
+// ── SPLASH ──
+(function(){
+  document.getElementById('splashTitle').textContent=APP_CONFIG.APP_NAME;
+  document.getElementById('splashDept').textContent=APP_CONFIG.DEPT;
+  const bar=document.getElementById('splashBar');
+  const msg=document.getElementById('splashMsg');
+  const splash=document.getElementById('splash');
+  const frame=document.getElementById('app-frame');
+  const msgs=[[0,'Connecting to server...'],[30,'Loading data...'],[60,'Preparing interface...'],[85,'Almost ready...']];
+  let pct=0;
+  const timer=setInterval(()=>{
+    pct=Math.min(pct+(pct<70?2:0.5),95);
+    bar.style.width=pct+'%';
+    const m=msgs.slice().reverse().find(([p])=>pct>=p);
+    if(m)msg.textContent=m[1];
+  },80);
+  frame.src=APP_CONFIG.APP_URL;
+  frame.addEventListener('load',()=>{
     clearInterval(timer);
-    bar.style.width = '100%';
-    msg.textContent = 'Ready!';
-    setTimeout(() => splash.classList.add('hide'), 300);
-    setTimeout(() => splash.style.display = 'none', 750);
+    bar.style.width='100%';
+    msg.textContent='Ready!';
+    setTimeout(()=>splash.classList.add('hide'),300);
+    setTimeout(()=>splash.style.display='none',750);
   });
-
-  // Fallback if load event doesn't fire (some browsers)
-  setTimeout(() => {
-    if (!splash.classList.contains('hide')) {
-      clearInterval(timer);
-      bar.style.width = '100%';
+  setTimeout(()=>{
+    if(!splash.classList.contains('hide')){
+      clearInterval(timer);bar.style.width='100%';
       splash.classList.add('hide');
-      setTimeout(() => splash.style.display = 'none', 500);
+      setTimeout(()=>splash.style.display='none',500);
     }
-  }, 8000);
+  },8000);
 })();
-</script>
 
-<!-- PWA Manifest — makes "Add to Home Screen" work properly -->
-<script>
-(function() {
-  const manifest = {
-    name: APP_CONFIG.APP_NAME,
-    short_name: APP_CONFIG.APP_SHORT,
-    description: APP_CONFIG.DEPT,
-    start_url: './',
-    display: 'standalone',
-    orientation: 'any',
-    background_color: '#0F1923',
-    theme_color: '#0F1923',
-    icons: [{
-      src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%230F1923'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-size='320'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E",
-      sizes: '512x512',
-      type: 'image/svg+xml',
-      purpose: 'any maskable'
-    }]
+// ── PWA MANIFEST ──
+(function(){
+  const manifest={
+    name:APP_CONFIG.APP_NAME,short_name:APP_CONFIG.APP_SHORT,
+    description:APP_CONFIG.DEPT,start_url:'./',
+    display:'standalone',orientation:'any',
+    background_color:'#0F1923',theme_color:'#0F1923',
+    icons:[{src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%230F1923'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-size='320'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E",sizes:'512x512',type:'image/svg+xml',purpose:'any maskable'}]
   };
-  const blob = new Blob([JSON.stringify(manifest)], {type: 'application/manifest+json'});
-  const link = document.createElement('link');
-  link.rel  = 'manifest';
-  link.href = URL.createObjectURL(blob);
+  const blob=new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'});
+  const link=document.createElement('link');
+  link.rel='manifest';link.href=URL.createObjectURL(blob);
   document.head.appendChild(link);
 })();
-</script>
 
+// Load prefs on start
+loadPrefs();
+</script>
 </body>
 </html>
