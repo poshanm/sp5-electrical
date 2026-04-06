@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
+  
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="mobile-web-app-capable" content="yes">
@@ -138,6 +139,149 @@ html,body{
   line-height:1.6;
 }
 [data-theme="light"] .s-note{background:#f0faf0;border-color:#86efac;color:#166534;}
+  /* ── DARK THEME (default) ── */
+:root, [data-theme="dark"] {
+  --bg: #0b0f1a;
+  --surface: #131929;
+  --card: #1a2236;
+  --border: #2a3555;
+  --text: #e8edf8;
+  --muted: #7a8aaa;
+  --accent: #4f8ef7;
+  --green: #22c97a;
+  --red: #f05c5c;
+  --yellow: #f5a623;
+  --input-bg: #131929;
+}
+ 
+/* ── LIGHT THEME ── */
+[data-theme="light"] {
+  --bg: #f0f4fc;
+  --surface: #ffffff;
+  --card: #ffffff;
+  --border: #d0d9f0;
+  --text: #1a2240;
+  --muted: #6b7aaa;
+  --accent: #2563eb;
+  --green: #16a34a;
+  --red: #dc2626;
+  --yellow: #d97706;
+  --input-bg: #f8faff;
+}
+ 
+/* Apply theme vars to body */
+body {
+  background: var(--bg) !important;
+  color: var(--text) !important;
+  transition: background 0.3s, color 0.3s;
+}
+ 
+/* ── SETTINGS BUTTON — fixed position ── */
+#sp5-settings-fab {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+}
+ 
+/* ── SETTINGS PANEL ── */
+#sp5-settings-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 10000;
+}
+#sp5-settings-overlay.show { display: block; }
+ 
+#sp5-settings-panel {
+  position: fixed;
+  top: 0; right: -300px; bottom: 0;
+  width: 280px;
+  background: var(--surface);
+  border-left: 2px solid var(--border);
+  z-index: 10001;
+  transition: right 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+#sp5-settings-panel.open { right: 0; }
+ 
+.sp5-s-hdr {
+  padding: 18px 16px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.sp5-s-hdr-title { font-size: 18px; font-weight: 700; color: var(--text); }
+.sp5-s-close {
+  background: none; border: none;
+  color: var(--muted); font-size: 22px;
+  cursor: pointer;
+}
+.sp5-s-body { padding: 20px 16px; flex: 1; overflow-y: auto; }
+.sp5-s-sec { margin-bottom: 28px; }
+.sp5-s-lbl {
+  font-size: 12px; font-weight: 700;
+  color: var(--muted); text-transform: uppercase;
+  letter-spacing: .5px; margin-bottom: 12px;
+  display: block;
+}
+.sp5-theme-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.sp5-t-btn {
+  padding: 12px; border-radius: 10px;
+  font-size: 14px; font-weight: 600;
+  cursor: pointer;
+  border: 2px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  transition: all 0.2s;
+}
+.sp5-t-btn.active { border-color: var(--accent); color: var(--accent); }
+ 
+/* Font slider */
+.sp5-font-row {
+  display: flex; align-items: center; gap: 10px; margin-top: 8px;
+}
+.sp5-font-val {
+  font-size: 14px; color: var(--text);
+  min-width: 36px; text-align: center; font-weight: 600;
+}
+input[type=range].sp5-slider {
+  flex: 1; -webkit-appearance: none;
+  height: 4px; border-radius: 2px;
+  background: var(--border); outline: none;
+}
+input[type=range].sp5-slider::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 20px; height: 20px;
+  border-radius: 50%; background: var(--accent); cursor: pointer;
+}
+.sp5-font-preview {
+  margin-top: 12px; padding: 12px;
+  background: var(--card); border-radius: 10px;
+  border: 1px solid var(--border);
+  color: var(--muted); line-height: 1.6;
+  font-size: inherit;
+}
+.sp5-save-btn {
+  width: 100%; padding: 14px; border-radius: 10px;
+  background: var(--accent); color: #fff;
+  font-size: 15px; font-weight: 700;
+  border: none; cursor: pointer; margin-top: 8px;
+}
 </style>
 </head>
 <body>
@@ -253,5 +397,129 @@ function setTheme(t,noSave){
 
 loadPrefs();
 </script>
+  <!-- Settings FAB Button -->
+<button id="sp5-settings-fab" onclick="sp5OpenSettings()" title="Settings">⚙️</button>
+ 
+<!-- Settings Overlay -->
+<div id="sp5-settings-overlay" onclick="sp5CloseSettings()"></div>
+ 
+<!-- Settings Panel -->
+<div id="sp5-settings-panel">
+  <div class="sp5-s-hdr">
+    <span class="sp5-s-hdr-title">⚙️ Settings</span>
+    <button class="sp5-s-close" onclick="sp5CloseSettings()">✕</button>
+  </div>
+  <div class="sp5-s-body">
+ 
+    <!-- Theme -->
+    <div class="sp5-s-sec">
+      <span class="sp5-s-lbl">🌓 Theme</span>
+      <div class="sp5-theme-row">
+        <button class="sp5-t-btn" id="sp5-tb-dark"  onclick="sp5SetTheme('dark')">🌙 Dark</button>
+        <button class="sp5-t-btn" id="sp5-tb-light" onclick="sp5SetTheme('light')">☀️ Light</button>
+      </div>
+    </div>
+ 
+    <!-- Font Size -->
+    <div class="sp5-s-sec">
+      <span class="sp5-s-lbl">🔡 Font Size</span>
+      <div class="sp5-font-row">
+        <span style="font-size:12px;color:var(--muted)">A</span>
+        <input type="range" class="sp5-slider" id="sp5-font-slider"
+               min="13" max="20" step="1" value="16"
+               oninput="sp5SetFontSize(this.value)">
+        <span style="font-size:19px;color:var(--muted)">A</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:4px">
+        <span style="font-size:11px;color:var(--muted)">Chhota</span>
+        <span class="sp5-font-val" id="sp5-font-val">16px</span>
+        <span style="font-size:11px;color:var(--muted)">Bada</span>
+      </div>
+      <div class="sp5-font-preview" id="sp5-font-preview">
+        ⚡ SP5 Electrical — Motor details, equipment status.
+      </div>
+    </div>
+ 
+    <!-- Save button -->
+    <button class="sp5-save-btn" id="sp5-save-btn" onclick="sp5SavePrefs()">
+      💾 Save Settings
+    </button>
+    <div id="sp5-save-msg" style="text-align:center;margin-top:10px;font-size:13px;color:var(--green);display:none">
+      ✅ Saved! Page reload hogi...
+    </div>
+ 
+  </div>
+</div>
+ 
+<script>
+// ── SP5 Settings JS ──────────────────────────────────────────
+(function() {
+  var _theme = 'dark';
+  var _fs    = 16;
+ 
+  // Load prefs from GAS on startup
+  google.script.run
+    .withSuccessHandler(function(prefs) {
+      if (prefs && prefs.theme)    sp5SetTheme(prefs.theme, true);
+      if (prefs && prefs.fontSize) sp5SetFontSize(prefs.fontSize, true);
+    })
+    .getAllUserPrefs();
+ 
+  window.sp5OpenSettings = function() {
+    document.getElementById('sp5-settings-panel').classList.add('open');
+    document.getElementById('sp5-settings-overlay').classList.add('show');
+  };
+  window.sp5CloseSettings = function() {
+    document.getElementById('sp5-settings-panel').classList.remove('open');
+    document.getElementById('sp5-settings-overlay').classList.remove('show');
+  };
+ 
+  window.sp5SetTheme = function(t, noSave) {
+    _theme = t;
+    document.documentElement.setAttribute('data-theme', t);
+    document.getElementById('sp5-tb-dark').classList.toggle('active',  t === 'dark');
+    document.getElementById('sp5-tb-light').classList.toggle('active', t === 'light');
+    if (!noSave) { /* user changed — will save on Save button */ }
+  };
+ 
+  window.sp5SetFontSize = function(v, noSave) {
+    v = parseInt(v) || 16;
+    _fs = v;
+    document.documentElement.style.fontSize = v + 'px';
+    document.getElementById('sp5-font-slider').value = v;
+    document.getElementById('sp5-font-val').textContent = v + 'px';
+    document.getElementById('sp5-font-preview').style.fontSize = v + 'px';
+  };
+ 
+  window.sp5SavePrefs = function() {
+    var btn = document.getElementById('sp5-save-btn');
+    btn.disabled = true;
+    btn.textContent = '⏳ Saving...';
+ 
+    // Save theme
+    google.script.run
+      .withSuccessHandler(function() {
+        // Save font size
+        google.script.run
+          .withSuccessHandler(function() {
+            document.getElementById('sp5-save-msg').style.display = 'block';
+            btn.textContent = '✅ Saved!';
+            // Reload page to apply saved prefs from server
+            setTimeout(function() { window.location.reload(); }, 1200);
+          })
+          .saveUserPref('sp5_fontSize', String(_fs));
+      })
+      .saveUserPref('sp5_theme', _theme);
+  };
+ 
+  // Init button states
+  var initTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+  document.getElementById('sp5-tb-dark').classList.toggle('active',  initTheme === 'dark');
+  document.getElementById('sp5-tb-light').classList.toggle('active', initTheme === 'light');
+  var initFs = parseInt(document.documentElement.style.fontSize) || 16;
+  document.getElementById('sp5-font-slider').value = initFs;
+  document.getElementById('sp5-font-val').textContent = initFs + 'px';
+})();
+</script>
 </body>
-</html>
+<html data-theme="<?= theme ?>" style="font-size: <?= fontSize ?>px">
