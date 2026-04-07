@@ -347,16 +347,37 @@ function savePrefs(update) {
 }
 
 // ── THEME ─────────────────────────────────────────────────
+// iframe same-origin nahi hai isliye uske andar CSS inject
+// nahi ho sakta. Solution: iframe par CSS filter lagao.
+//
+// Dark mode  → iframe filter: none  (app already dark)
+// Light mode → iframe filter: invert(1) hue-rotate(180deg)
+//              Yeh colors ko invert karta hai — dark bg white
+//              ban jaata hai, text bhi sahi dikhta hai.
+//              Images ke liye hue-rotate(180deg) re-correct
+//              karta hai taaki unka color theek rahe.
+
 function applyTheme(dark, persist) {
   isDark = dark;
-  document.body.classList.toggle('light', !dark);
-
+  const frame  = document.getElementById('app-frame');
   const toggle = document.getElementById('themeToggle');
   const icon   = document.getElementById('themeIcon');
   const label  = document.getElementById('themeLabel');
   const sub    = document.getElementById('themeSub');
   const meta   = document.getElementById('themeMetaTag');
 
+  // ── iframe filter — yahi actual app ka look badlega ──────
+  if (dark) {
+    frame.style.filter = 'none';
+    frame.style.background = '#0F1923';
+  } else {
+    // invert: dark → light | hue-rotate: colors correct karo
+    frame.style.filter = 'invert(1) hue-rotate(180deg)';
+    frame.style.background = '#ffffff';
+  }
+
+  // ── Settings panel + topbar UI update ────────────────────
+  document.body.classList.toggle('light', !dark);
   toggle.classList.toggle('on', dark);
 
   if (dark) {
@@ -368,7 +389,7 @@ function applyTheme(dark, persist) {
     icon.textContent  = '☀️';
     label.textContent = 'Light Mode';
     sub.textContent   = 'Switch to Dark →';
-    meta.content      = '#FFFFFF';
+    meta.content      = '#ffffff';
   }
 
   if (persist) savePrefs({ dark });
@@ -379,29 +400,35 @@ function toggleTheme() {
 }
 
 // ── ZOOM ──────────────────────────────────────────────────
+// iframe ke upar zoom lagao — poora app zoom hoga
+// (dashboard, motors, directory — sab kuch)
 function applyZoom(zoom, persist) {
   currentZoom = zoom;
   const frame = document.getElementById('app-frame');
+  const topH  = 46; // topbar height px
 
-  // Update active button
+  // Update size buttons
   document.querySelectorAll('.size-btn').forEach(b => {
     b.classList.toggle('active', Math.abs(parseFloat(b.dataset.zoom) - zoom) < 0.01);
   });
 
-  // Apply zoom — CSS zoom works on Chrome/Edge/Safari
-  // For Firefox we use transform scale
-  if ('zoom' in document.body.style) {
-    frame.style.zoom = zoom;
-    frame.style.transform = '';
-    frame.style.width  = '100%';
-    frame.style.height = 'calc(100% - 46px)';
+  // CSS zoom — Chrome, Edge, Safari, Android WebView sab support karte hain
+  // Firefox ke liye transform:scale fallback
+  const supportsZoom = CSS.supports('zoom', '1') || ('zoom' in document.createElement('div').style);
+
+  if (supportsZoom) {
+    frame.style.zoom            = zoom;
+    frame.style.transform       = '';
+    frame.style.width           = '100%';
+    frame.style.height          = 'calc(100% - ' + topH + 'px)';
+    frame.style.transformOrigin = '';
   } else {
-    // Firefox fallback
-    frame.style.zoom = '';
-    frame.style.transform = `scale(${zoom})`;
+    // Firefox
+    frame.style.zoom            = '';
+    frame.style.transform       = 'scale(' + zoom + ')';
     frame.style.transformOrigin = 'top left';
-    frame.style.width  = (100 / zoom).toFixed(2) + '%';
-    frame.style.height = ((100 / zoom)).toFixed(2) + 'vh';
+    frame.style.width           = (100 / zoom).toFixed(3) + '%';
+    frame.style.height          = 'calc((' + (100 / zoom).toFixed(3) + 'vh - ' + (topH / zoom).toFixed(1) + 'px))';
   }
 
   if (persist) savePrefs({ zoom });
