@@ -347,16 +347,7 @@ function savePrefs(update) {
 }
 
 // ── THEME ─────────────────────────────────────────────────
-// iframe same-origin nahi hai isliye uske andar CSS inject
-// nahi ho sakta. Solution: iframe par CSS filter lagao.
-//
-// Dark mode  → iframe filter: none  (app already dark)
-// Light mode → iframe filter: invert(1) hue-rotate(180deg)
-//              Yeh colors ko invert karta hai — dark bg white
-//              ban jaata hai, text bhi sahi dikhta hai.
-//              Images ke liye hue-rotate(180deg) re-correct
-//              karta hai taaki unka color theek rahe.
-
+// iframe same-origin nahi — CSS filter se dark/light karo
 function applyTheme(dark, persist) {
   isDark = dark;
   const frame  = document.getElementById('app-frame');
@@ -366,17 +357,15 @@ function applyTheme(dark, persist) {
   const sub    = document.getElementById('themeSub');
   const meta   = document.getElementById('themeMetaTag');
 
-  // ── iframe filter — yahi actual app ka look badlega ──────
+  // iframe par filter — poora app invert ho jaata hai
   if (dark) {
-    frame.style.filter = 'none';
+    frame.style.filter     = 'none';
     frame.style.background = '#0F1923';
   } else {
-    // invert: dark → light | hue-rotate: colors correct karo
-    frame.style.filter = 'invert(1) hue-rotate(180deg)';
+    frame.style.filter     = 'invert(1) hue-rotate(180deg)';
     frame.style.background = '#ffffff';
   }
 
-  // ── Settings panel + topbar UI update ────────────────────
   document.body.classList.toggle('light', !dark);
   toggle.classList.toggle('on', dark);
 
@@ -395,47 +384,48 @@ function applyTheme(dark, persist) {
   if (persist) savePrefs({ dark });
 }
 
-function toggleTheme() {
-  applyTheme(!isDark, true);
-}
+function toggleTheme() { applyTheme(!isDark, true); }
 
-// ── ZOOM ──────────────────────────────────────────────────
-// iframe ke upar zoom lagao — poora app zoom hoga
-// (dashboard, motors, directory — sab kuch)
-function applyZoom(zoom, persist) {
-  currentZoom = zoom;
-  const frame = document.getElementById('app-frame');
-  const topH  = 46; // topbar height px
+// ── FONT SCALE via postMessage ─────────────────────────────
+// Mobile mein CSS zoom kaam nahi karta.
+// Solution: iframe ke andar Apps Script HTML ko postMessage
+// bhejo → woh --fs-scale CSS variable update karega →
+// sab elements (text, buttons, table) automatically scale honge.
 
-  // Update size buttons
+const SCALES = [0.80, 0.90, 1.00, 1.10, 1.20];
+
+function applyScale(scale, persist) {
+  currentZoom = scale;
+
+  // Button states update
   document.querySelectorAll('.size-btn').forEach(b => {
-    b.classList.toggle('active', Math.abs(parseFloat(b.dataset.zoom) - zoom) < 0.01);
+    b.classList.toggle('active', Math.abs(parseFloat(b.dataset.zoom) - scale) < 0.01);
   });
 
-  // CSS zoom — Chrome, Edge, Safari, Android WebView sab support karte hain
-  // Firefox ke liye transform:scale fallback
-  const supportsZoom = CSS.supports('zoom', '1') || ('zoom' in document.createElement('div').style);
-
-  if (supportsZoom) {
-    frame.style.zoom            = zoom;
-    frame.style.transform       = '';
-    frame.style.width           = '100%';
-    frame.style.height          = 'calc(100% - ' + topH + 'px)';
-    frame.style.transformOrigin = '';
-  } else {
-    // Firefox
-    frame.style.zoom            = '';
-    frame.style.transform       = 'scale(' + zoom + ')';
-    frame.style.transformOrigin = 'top left';
-    frame.style.width           = (100 / zoom).toFixed(3) + '%';
-    frame.style.height          = 'calc((' + (100 / zoom).toFixed(3) + 'vh - ' + (topH / zoom).toFixed(1) + 'px))';
+  // postMessage iframe ko bhejo — Desktop + Mobile dono mein kaam karta hai
+  const frame = document.getElementById('app-frame');
+  try {
+    frame.contentWindow.postMessage(
+      { type: 'SP5_FONT_SCALE', scale: scale },
+      '*'  // Apps Script ka origin dynamic hota hai — * zaroori hai
+    );
+  } catch(err) {
+    console.log('postMessage error:', err);
   }
 
-  if (persist) savePrefs({ zoom });
+  if (persist) savePrefs({ zoom: scale });
 }
 
 function setZoom(btn) {
-  applyZoom(parseFloat(btn.dataset.zoom), true);
+  applyScale(parseFloat(btn.dataset.zoom), true);
+}
+
+// iframe load hone ke baad saved scale bhejo
+function sendSavedScale() {
+  const prefs = loadPrefs();
+  if (prefs.zoom && prefs.zoom !== 1.0) {
+    setTimeout(() => applyScale(prefs.zoom, false), 800);
+  }
 }
 
 // ── PANEL ─────────────────────────────────────────────────
@@ -467,41 +457,43 @@ function closeSettings() {
 
 function reloadApp() {
   closeSettings();
+  const frame = document.getElementById('app-frame');
   setTimeout(() => {
-    document.getElementById('app-frame').src = APP_CONFIG.APP_URL;
+    frame.src = APP_CONFIG.APP_URL;
+    frame.addEventListener('load', () => { sendSavedScale(); }, { once: true });
   }, 100);
 }
 
 function resetSettings() {
   applyTheme(true, true);
-  applyZoom(1.0, true);
+  applyScale(1.0, true);
   closeSettings();
 }
 
 // ── BOOT ──────────────────────────────────────────────────
 (function boot() {
-  // Restore saved prefs instantly before anything renders
+  // Restore saved prefs instantly
   const prefs = loadPrefs();
   if (prefs.dark === false) applyTheme(false, false);
-  if (prefs.zoom)           applyZoom(prefs.zoom, false);
+  // Scale: button state update karo (message baad mein jayega iframe load ke baad)
+  if (prefs.zoom) {
+    currentZoom = prefs.zoom;
+    document.querySelectorAll('.size-btn').forEach(b => {
+      b.classList.toggle('active', Math.abs(parseFloat(b.dataset.zoom) - prefs.zoom) < 0.01);
+    });
+  }
 
-  // Set text from config
+  // Splash text
   document.getElementById('splashTitle').textContent = APP_CONFIG.APP_NAME;
   document.getElementById('splashDept').textContent  = APP_CONFIG.DEPT;
   document.getElementById('tbTitle').textContent     = '⚡ ' + APP_CONFIG.APP_SHORT;
 
-  // Splash progress
   const bar    = document.getElementById('splashBar');
   const msg    = document.getElementById('splashMsg');
   const splash = document.getElementById('splash');
   const frame  = document.getElementById('app-frame');
 
-  const msgs = [
-    [0, 'Connecting to server...'],
-    [30,'Loading data...'],
-    [60,'Preparing interface...'],
-    [85,'Almost ready...'],
-  ];
+  const msgs = [[0,'Connecting to server...'],[30,'Loading data...'],[60,'Preparing interface...'],[85,'Almost ready...']];
   let pct = 0;
   const timer = setInterval(() => {
     pct = Math.min(pct + (pct < 70 ? 2 : 0.5), 95);
@@ -510,18 +502,28 @@ function resetSettings() {
     if (m) msg.textContent = m[1];
   }, 80);
 
-  function hideSplash() {
+  frame.src = APP_CONFIG.APP_URL;
+
+  frame.addEventListener('load', () => {
     clearInterval(timer);
     bar.style.width = '100%';
     msg.textContent = 'Ready!';
     setTimeout(() => splash.classList.add('hide'), 300);
     setTimeout(() => splash.style.display = 'none', 750);
-  }
+    // iframe load ke baad saved scale bhejo
+    sendSavedScale();
+  });
 
-  frame.src = APP_CONFIG.APP_URL;
-  frame.addEventListener('load', hideSplash);
-  // Fallback — hide after 8s regardless
-  setTimeout(() => { if (!splash.classList.contains('hide')) hideSplash(); }, 8000);
+  setTimeout(() => {
+    if (!splash.classList.contains('hide')) {
+      clearInterval(timer);
+      bar.style.width = '100%';
+      splash.classList.add('hide');
+      setTimeout(() => splash.style.display = 'none', 500);
+      // Fallback: scale bhejo
+      sendSavedScale();
+    }
+  }, 8000);
 })();
 </script>
 
