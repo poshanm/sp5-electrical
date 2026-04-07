@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,19 +13,13 @@
 <script>
 /* ══════════════════════════════════════════════════════════
    ★  ONLY THIS SECTION CHANGE KARO — BAAKI MAT CHHUONA  ★
-   ══════════════════════════════════════════════════════════
-
-   Agar dobara deploy karo Apps Script mein aur URL badle,
-   sirf niche APP_URL update karo aur GitHub par push karo.
    ══════════════════════════════════════════════════════════ */
-
 const APP_CONFIG = {
   APP_URL:   'https://script.google.com/macros/s/AKfycbzE6zjlrA2iTSYsG4upYnk7Gv0PQduWv74r4cRBU-EGPEUnQBrclQl8Pf--FX44xdeeEg/exec',
   APP_NAME:  'SP5 Electrical Management',
   APP_SHORT: 'SP5 Elec',
   DEPT:      'SP-5 Screening Plant · Electrical Department',
 };
-
 /* ══════════════════════════════════════════════════════════
    ★  UPAR TAK HI CHANGE KARO — NICHE MAT CHHUONA        ★
    ══════════════════════════════════════════════════════════ */
@@ -35,289 +28,122 @@ const APP_CONFIG = {
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;width:100%;overflow:hidden;-webkit-text-size-adjust:100%}
-body{
-  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
-  background:#0F1923;color:#E2E8F0;
-  -webkit-font-smoothing:antialiased;
-  transition:background .3s,color .3s;
-}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#0F1923;color:#E2E8F0;-webkit-font-smoothing:antialiased;transition:background .3s}
+body.light{background:#F1F5F9;color:#1E293B}
 
-/* ── LIGHT MODE ──────────────────────────────────────────── */
-body.light{ background:#F1F5F9; color:#1E293B; }
-body.light #topbar{ background:#FFFFFF; border-color:#E2E8F0; box-shadow:0 1px 6px rgba(0,0,0,.08); }
-body.light #topbar .tb-title{ color:#1E293B; }
-body.light .tb-btn{ color:#475569; border-color:#CBD5E1; background:#F8FAFC; }
-body.light .tb-btn:hover{ background:#E2E8F0; }
-body.light #settings-panel{ background:#FFFFFF; border-color:#E2E8F0; box-shadow:0 12px 40px rgba(0,0,0,.12); }
-body.light .sp-title{ color:#94A3B8; }
-body.light .setting-row{ border-color:#F1F5F9; }
-body.light .setting-label{ color:#1E293B; }
-body.light .setting-sub{ color:#94A3B8; }
-body.light .size-row{ border-color:#F1F5F9; }
-body.light .size-label{ color:#94A3B8; }
-body.light .size-btn{ background:#F1F5F9; color:#64748B; border-color:#E2E8F0; }
-body.light .size-btn.active{ background:#2563EB; color:#fff; border-color:#2563EB; }
-body.light .size-btn:hover:not(.active){ background:#E2E8F0; color:#1E293B; }
-body.light .theme-toggle{ border-color:#CBD5E1; background:#E2E8F0; }
-body.light .sp-footer{ border-color:#F1F5F9; }
-body.light .sp-footer-btn{ border-color:#E2E8F0; background:#F8FAFC; color:#64748B; }
-body.light .sp-footer-btn:hover{ background:#E2E8F0; color:#1E293B; }
-body.light #settings-overlay{ background:rgba(0,0,0,.2); }
-body.light #app-frame{ background:#F1F5F9; }
-body.light #splash{ background:#F1F5F9; }
-body.light .splash-title{ color:#1E293B; }
+/* TOP BAR */
+#topbar{position:fixed;top:0;left:0;right:0;height:46px;background:#162232;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;padding:0 12px 0 14px;gap:8px;z-index:200;transition:background .3s,border-color .3s}
+body.light #topbar{background:#fff;border-color:#E2E8F0;box-shadow:0 1px 6px rgba(0,0,0,.08)}
+#topbar .tb-title{flex:1;font-size:14px;font-weight:700;color:#F1F5F9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .3s}
+body.light #topbar .tb-title{color:#1E293B}
+.tb-btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#94A3B8;cursor:pointer;font-size:18px;padding:0;width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;transition:all .15s;flex-shrink:0}
+.tb-btn:hover{background:rgba(255,255,255,.12);color:#F1F5F9}
+.tb-btn:active{transform:scale(.9)}
+body.light .tb-btn{color:#475569;border-color:#CBD5E1;background:#F8FAFC}
+body.light .tb-btn:hover{background:#E2E8F0}
 
-/* ── TOP BAR ─────────────────────────────────────────────── */
-#topbar{
-  position:fixed;top:0;left:0;right:0;
-  height:46px;
-  background:#162232;
-  border-bottom:1px solid rgba(255,255,255,.07);
-  display:flex;align-items:center;
-  padding:0 12px 0 14px;gap:8px;
-  z-index:200;
-  transition:background .3s,border-color .3s,box-shadow .3s;
-}
-#topbar .tb-title{
-  flex:1;font-size:14px;font-weight:700;
-  color:#F1F5F9;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  transition:color .3s;
-}
-.tb-btn{
-  background:rgba(255,255,255,.06);
-  border:1px solid rgba(255,255,255,.1);
-  color:#94A3B8;cursor:pointer;
-  font-size:19px;padding:0;
-  width:36px;height:36px;
-  border-radius:9px;
-  display:flex;align-items:center;justify-content:center;
-  -webkit-tap-highlight-color:transparent;
-  transition:background .15s,color .15s,transform .1s;
-  flex-shrink:0;
-}
-.tb-btn:hover{ background:rgba(255,255,255,.12);color:#F1F5F9; }
-.tb-btn:active{ transform:scale(.9); }
+/* IFRAME */
+#app-frame{position:fixed;top:46px;left:0;right:0;bottom:0;width:100%;height:calc(100% - 46px);border:none;background:#0F1923;display:block;transition:background .3s,filter .3s}
 
-/* ── IFRAME ──────────────────────────────────────────────── */
-#app-frame{
-  position:fixed;
-  top:46px;left:0;right:0;bottom:0;
-  width:100%;height:calc(100% - 46px);
-  border:none;background:#0F1923;
-  display:block;
-  transform-origin:top left;
-  transition:background .3s;
-}
+/* SETTINGS OVERLAY */
+#settings-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;display:none;opacity:0;transition:opacity .2s}
+#settings-overlay.show{display:block;opacity:1}
 
-/* ── SETTINGS OVERLAY ────────────────────────────────────── */
-#settings-overlay{
-  position:fixed;inset:0;
-  background:rgba(0,0,0,.45);
-  z-index:300;
-  display:none;opacity:0;
-  transition:opacity .2s;
-}
-#settings-overlay.show{ display:block;opacity:1; }
+/* SETTINGS PANEL — slide in from right */
+#settings-panel{position:fixed;top:0;right:-300px;bottom:0;width:280px;background:#162232;border-left:1px solid rgba(255,255,255,.08);z-index:400;transition:right .3s ease;display:flex;flex-direction:column;overflow:hidden}
+#settings-panel.show{right:0}
+body.light #settings-panel{background:#fff;border-color:#E2E8F0}
+.sp-hdr{padding:16px 18px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between;min-height:46px}
+body.light .sp-hdr{border-color:#E2E8F0}
+.sp-hdr-title{font-size:15px;font-weight:700;color:#F1F5F9}
+body.light .sp-hdr-title{color:#1E293B}
+.sp-close{background:none;border:none;color:#64748B;font-size:20px;cursor:pointer;padding:4px;-webkit-tap-highlight-color:transparent}
+.sp-body{padding:20px 18px;flex:1;overflow-y:auto}
+.sp-sec{margin-bottom:24px}
+.sp-lbl{font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px;display:block}
 
-/* ── SETTINGS PANEL ──────────────────────────────────────── */
-#settings-panel{
-  position:fixed;
-  top:54px;right:10px;
-  width:268px;
-  background:#1A2A3A;
-  border:1px solid rgba(255,255,255,.1);
-  border-radius:14px;
-  z-index:400;
-  overflow:hidden;
-  display:none;
-  opacity:0;
-  transform:translateY(-10px) scale(.96);
-  transition:opacity .2s ease,transform .2s ease;
-  box-shadow:0 16px 48px rgba(0,0,0,.55);
-}
-#settings-panel.show{
-  display:block;opacity:1;
-  transform:translateY(0) scale(1);
-}
+/* Theme buttons */
+.theme-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.theme-btn{padding:11px;border-radius:10px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;border:2px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:#64748B;transition:all .2s;-webkit-tap-highlight-color:transparent}
+.theme-btn.active{border-color:#3B82F6;color:#3B82F6;background:rgba(37,99,235,.1)}
+body.light .theme-btn{background:#F1F5F9;border-color:#E2E8F0;color:#64748B}
+body.light .theme-btn.active{border-color:#2563EB;color:#2563EB;background:#DBEAFE}
 
-.sp-title{
-  font-size:10px;font-weight:700;color:#4A6080;
-  letter-spacing:.12em;text-transform:uppercase;
-  padding:14px 16px 10px;
-}
-.setting-row{
-  padding:11px 16px;
-  border-top:1px solid rgba(255,255,255,.05);
-  display:flex;align-items:center;gap:12px;
-}
-.setting-icon{ font-size:18px;width:22px;text-align:center;flex-shrink:0; }
-.setting-text{ flex:1;min-width:0; }
-.setting-label{ font-size:13px;font-weight:600;color:#E2E8F0;display:block; }
-.setting-sub{ font-size:11px;color:#64748B;display:block;margin-top:1px; }
+/* Note for font size */
+.sp-note{background:rgba(37,99,235,.1);border:1px solid rgba(59,130,246,.2);border-radius:10px;padding:12px 14px;font-size:13px;color:#93C5FD;line-height:1.5}
+body.light .sp-note{background:#DBEAFE;border-color:#93C5FD;color:#1E40AF}
 
-/* Toggle switch */
-.theme-toggle{
-  width:44px;height:25px;
-  background:rgba(255,255,255,.1);
-  border:1px solid rgba(255,255,255,.15);
-  border-radius:13px;
-  position:relative;cursor:pointer;flex-shrink:0;
-  transition:background .25s,border-color .25s;
-  -webkit-tap-highlight-color:transparent;
-}
-.theme-toggle.on{ background:#2563EB;border-color:#2563EB; }
-.toggle-knob{
-  position:absolute;top:2px;left:2px;
-  width:19px;height:19px;
-  background:#fff;border-radius:50%;
-  transition:transform .22s cubic-bezier(.4,0,.2,1);
-  box-shadow:0 2px 5px rgba(0,0,0,.35);
-}
-.theme-toggle.on .toggle-knob{ transform:translateX(19px); }
+/* Footer buttons */
+.sp-footer{padding:12px 18px 20px;border-top:1px solid rgba(255,255,255,.07);display:grid;grid-template-columns:1fr 1fr;gap:8px}
+body.light .sp-footer{border-color:#E2E8F0}
+.sp-footer-btn{padding:9px 6px;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.05);border-radius:9px;color:#64748B;font-size:13px;font-weight:600;cursor:pointer;text-align:center;transition:all .15s;font-family:inherit;-webkit-tap-highlight-color:transparent}
+.sp-footer-btn:hover{background:rgba(255,255,255,.1);color:#E2E8F0}
+body.light .sp-footer-btn{border-color:#E2E8F0;background:#F8FAFC}
+body.light .sp-footer-btn:hover{background:#E2E8F0;color:#1E293B}
 
-/* Text size */
-.size-row{
-  padding:10px 16px 14px;
-  border-top:1px solid rgba(255,255,255,.05);
-}
-.size-label{
-  font-size:10px;font-weight:700;color:#4A6080;
-  letter-spacing:.08em;text-transform:uppercase;
-  margin-bottom:10px;
-  display:flex;align-items:center;gap:6px;
-}
-.size-label span{ font-size:14px; }
-.size-btns{ display:grid;grid-template-columns:repeat(5,1fr);gap:6px; }
-.size-btn{
-  padding:9px 2px 7px;
-  background:rgba(255,255,255,.06);
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:9px;
-  color:#64748B;cursor:pointer;
-  text-align:center;
-  transition:all .15s;
-  -webkit-tap-highlight-color:transparent;
-  display:flex;flex-direction:column;align-items:center;gap:3px;
-}
-.size-btn .sz-a{ font-weight:700;line-height:1; }
-.size-btn .sz-label{ font-size:9px;opacity:.7; }
-.size-btn.active{ background:#2563EB;color:#fff;border-color:#2563EB; }
-.size-btn:hover:not(.active){ background:rgba(255,255,255,.12);color:#E2E8F0; }
-.size-btn:active{ transform:scale(.88); }
-
-/* Footer */
-.sp-footer{
-  padding:10px 12px 12px;
-  border-top:1px solid rgba(255,255,255,.05);
-  display:grid;grid-template-columns:1fr 1fr;gap:8px;
-}
-.sp-footer-btn{
-  padding:9px 6px;
-  border:1px solid rgba(255,255,255,.09);
-  background:rgba(255,255,255,.05);
-  border-radius:9px;
-  color:#64748B;font-size:12px;font-weight:600;
-  cursor:pointer;text-align:center;
-  transition:all .15s;
-  -webkit-tap-highlight-color:transparent;
-}
-.sp-footer-btn:hover{ background:rgba(255,255,255,.1);color:#E2E8F0; }
-.sp-footer-btn:active{ transform:scale(.95); }
-
-/* ── SPLASH ──────────────────────────────────────────────── */
-#splash{
-  position:fixed;inset:0;
-  background:#0F1923;
-  display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  gap:16px;z-index:500;
-  transition:opacity .4s ease;
-}
-#splash.hide{ opacity:0;pointer-events:none; }
-.splash-bolt{
-  font-size:64px;line-height:1;
-  animation:pulse 1.5s ease-in-out infinite;
-}
+/* SPLASH */
+#splash{position:fixed;inset:0;background:#0F1923;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:500;transition:opacity .4s ease}
+#splash.hide{opacity:0;pointer-events:none}
+.splash-bolt{font-size:64px;line-height:1;animation:pulse 1.5s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.7;transform:scale(.95)}}
-.splash-title{ font-size:22px;font-weight:800;color:#fff;letter-spacing:-.02em; }
-.splash-dept{ font-size:12px;color:#64748B;letter-spacing:.04em;margin-top:2px;text-align:center;padding:0 20px; }
-.splash-bar{ width:180px;height:3px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;margin-top:8px; }
-.splash-progress{ height:100%;width:0%;background:linear-gradient(90deg,#2563EB,#3B82F6);border-radius:2px;transition:width .1s linear; }
-.splash-msg{ font-size:12px;color:#64748B; }
+.splash-title{font-size:22px;font-weight:800;color:#fff;letter-spacing:-.02em}
+.splash-dept{font-size:12px;color:#64748B;letter-spacing:.04em;margin-top:2px;text-align:center;padding:0 20px}
+.splash-bar{width:180px;height:3px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;margin-top:8px}
+.splash-progress{height:100%;width:0%;background:linear-gradient(90deg,#2563EB,#3B82F6);border-radius:2px;transition:width .1s linear}
+.splash-msg{font-size:12px;color:#64748B}
 </style>
 </head>
 <body>
 
-<!-- ── TOP BAR ────────────────────────────────────────────── -->
+<!-- TOP BAR -->
 <div id="topbar">
   <div class="tb-title" id="tbTitle">⚡ SP5 Elec</div>
   <button class="tb-btn" id="settingsBtn" onclick="toggleSettings()" title="Settings">⚙</button>
 </div>
 
-<!-- ── SETTINGS OVERLAY ───────────────────────────────────── -->
+<!-- SETTINGS OVERLAY -->
 <div id="settings-overlay" onclick="closeSettings()"></div>
 
-<!-- ── SETTINGS PANEL ─────────────────────────────────────── -->
+<!-- SETTINGS PANEL -->
 <div id="settings-panel">
-
-  <div class="sp-title">Display Settings</div>
-
-  <!-- Theme toggle -->
-  <div class="setting-row">
-    <div class="setting-icon" id="themeIcon">🌙</div>
-    <div class="setting-text">
-      <span class="setting-label" id="themeLabel">Dark Mode</span>
-      <span class="setting-sub"  id="themeSub">Switch to Light →</span>
-    </div>
-    <div class="theme-toggle on" id="themeToggle" onclick="toggleTheme()">
-      <div class="toggle-knob"></div>
-    </div>
+  <div class="sp-hdr">
+    <span class="sp-hdr-title">⚙ Settings</span>
+    <button class="sp-close" onclick="closeSettings()">✕</button>
   </div>
+  <div class="sp-body">
 
-  <!-- Text size -->
-  <div class="size-row">
-    <div class="size-label"><span>Aa</span> Text Size</div>
-    <div class="size-btns">
-      <button class="size-btn" data-zoom="0.80" onclick="setZoom(this)">
-        <span class="sz-a" style="font-size:11px">A</span>
-        <span class="sz-label">80%</span>
-      </button>
-      <button class="size-btn" data-zoom="0.90" onclick="setZoom(this)">
-        <span class="sz-a" style="font-size:13px">A</span>
-        <span class="sz-label">90%</span>
-      </button>
-      <button class="size-btn active" data-zoom="1.00" onclick="setZoom(this)">
-        <span class="sz-a" style="font-size:15px">A</span>
-        <span class="sz-label">100%</span>
-      </button>
-      <button class="size-btn" data-zoom="1.10" onclick="setZoom(this)">
-        <span class="sz-a" style="font-size:17px">A</span>
-        <span class="sz-label">110%</span>
-      </button>
-      <button class="size-btn" data-zoom="1.20" onclick="setZoom(this)">
-        <span class="sz-a" style="font-size:19px">A</span>
-        <span class="sz-label">120%</span>
-      </button>
+    <!-- Theme — sirf launcher ka theme badlega (iframe ke andar app ka apna settings hai) -->
+    <div class="sp-sec">
+      <span class="sp-lbl">🌓 Launcher Theme</span>
+      <div class="theme-row">
+        <button class="theme-btn active" id="gbThemeDark"  onclick="setLauncherTheme('dark')">🌙 Dark</button>
+        <button class="theme-btn"        id="gbThemeLight" onclick="setLauncherTheme('light')">☀️ Light</button>
+      </div>
     </div>
-  </div>
 
-  <!-- Footer actions -->
+    <!-- Font size note -->
+    <div class="sp-sec">
+      <span class="sp-lbl">🔡 Text Size</span>
+      <div class="sp-note">
+        Text size app ke <b>andar</b> settings se control hoti hai.<br><br>
+        App kholne ke baad → <b>⚙ Settings</b> icon → Font Size slider use karo.<br><br>
+        Setting save hoti hai — agli baar automatically same rahegi. 💾
+      </div>
+    </div>
+
+  </div>
   <div class="sp-footer">
-    <div class="sp-footer-btn" onclick="reloadApp()">↺ Reload App</div>
-    <div class="sp-footer-btn" onclick="resetSettings()">✕ Reset</div>
+    <button class="sp-footer-btn" onclick="reloadApp()">↺ Reload</button>
+    <button class="sp-footer-btn" onclick="resetAll()">✕ Reset</button>
   </div>
-
 </div>
 
-<!-- ── APP IFRAME ─────────────────────────────────────────── -->
-<iframe
-  id="app-frame"
+<!-- APP IFRAME -->
+<iframe id="app-frame"
   sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-top-navigation"
-  allow="camera; microphone"
-></iframe>
+  allow="camera; microphone"></iframe>
 
-<!-- ── SPLASH ─────────────────────────────────────────────── -->
+<!-- SPLASH -->
 <div id="splash">
   <div class="splash-bolt">⚡</div>
   <div>
@@ -329,160 +155,63 @@ body.light .splash-title{ color:#1E293B; }
 </div>
 
 <script>
-// ════════════════════════════════════════════════════════════
-// SETTINGS ENGINE
-// ════════════════════════════════════════════════════════════
-const PREFS_KEY = 'sp5_display_prefs';
-let isDark = true;
-let currentZoom = 1.0;
+const GB_PREFS = 'sp5_github_prefs';
 let panelOpen = false;
 
-function loadPrefs() {
-  try { return JSON.parse(localStorage.getItem(PREFS_KEY)) || {}; }
-  catch(e) { return {}; }
-}
-function savePrefs(update) {
-  const p = loadPrefs();
-  Object.assign(p, update);
-  localStorage.setItem(PREFS_KEY, JSON.stringify(p));
-}
+function gbLoadPrefs(){ try{return JSON.parse(localStorage.getItem(GB_PREFS)||'{}');}catch(e){return{};} }
+function gbSavePrefs(u){ const p=gbLoadPrefs(); Object.assign(p,u); localStorage.setItem(GB_PREFS,JSON.stringify(p)); }
 
-// ── THEME ─────────────────────────────────────────────────
-// iframe same-origin nahi — CSS filter se dark/light karo
-function applyTheme(dark, persist) {
-  isDark = dark;
-  const frame  = document.getElementById('app-frame');
-  const toggle = document.getElementById('themeToggle');
-  const icon   = document.getElementById('themeIcon');
-  const label  = document.getElementById('themeLabel');
-  const sub    = document.getElementById('themeSub');
-  const meta   = document.getElementById('themeMetaTag');
-
-  // iframe par filter — poora app invert ho jaata hai
-  if (dark) {
-    frame.style.filter     = 'none';
+/* ── Launcher theme (topbar + splash only) ─────────────────── */
+let launcherDark = true;
+function setLauncherTheme(t, noSave){
+  launcherDark = (t==='dark');
+  document.body.classList.toggle('light', !launcherDark);
+  document.getElementById('gbThemeDark').classList.toggle('active',  launcherDark);
+  document.getElementById('gbThemeLight').classList.toggle('active', !launcherDark);
+  document.getElementById('themeMetaTag').content = launcherDark ? '#0F1923' : '#F1F5F9';
+  // iframe theme — CSS filter se (light mode invert karta hai)
+  const frame = document.getElementById('app-frame');
+  if(launcherDark){
+    frame.style.filter = 'none';
     frame.style.background = '#0F1923';
   } else {
-    frame.style.filter     = 'invert(1) hue-rotate(180deg)';
+    frame.style.filter = 'invert(1) hue-rotate(180deg)';
     frame.style.background = '#ffffff';
   }
-
-  document.body.classList.toggle('light', !dark);
-  toggle.classList.toggle('on', dark);
-
-  if (dark) {
-    icon.textContent  = '🌙';
-    label.textContent = 'Dark Mode';
-    sub.textContent   = 'Switch to Light →';
-    meta.content      = '#0F1923';
-  } else {
-    icon.textContent  = '☀️';
-    label.textContent = 'Light Mode';
-    sub.textContent   = 'Switch to Dark →';
-    meta.content      = '#ffffff';
-  }
-
-  if (persist) savePrefs({ dark });
+  if(!noSave) gbSavePrefs({theme:t});
 }
 
-function toggleTheme() { applyTheme(!isDark, true); }
-
-// ── FONT SCALE via postMessage ─────────────────────────────
-// Mobile mein CSS zoom kaam nahi karta.
-// Solution: iframe ke andar Apps Script HTML ko postMessage
-// bhejo → woh --fs-scale CSS variable update karega →
-// sab elements (text, buttons, table) automatically scale honge.
-
-const SCALES = [0.80, 0.90, 1.00, 1.10, 1.20];
-
-function applyScale(scale, persist) {
-  currentZoom = scale;
-
-  // Button states update
-  document.querySelectorAll('.size-btn').forEach(b => {
-    b.classList.toggle('active', Math.abs(parseFloat(b.dataset.zoom) - scale) < 0.01);
-  });
-
-  // postMessage iframe ko bhejo — Desktop + Mobile dono mein kaam karta hai
-  const frame = document.getElementById('app-frame');
-  try {
-    frame.contentWindow.postMessage(
-      { type: 'SP5_FONT_SCALE', scale: scale },
-      '*'  // Apps Script ka origin dynamic hota hai — * zaroori hai
-    );
-  } catch(err) {
-    console.log('postMessage error:', err);
-  }
-
-  if (persist) savePrefs({ zoom: scale });
-}
-
-function setZoom(btn) {
-  applyScale(parseFloat(btn.dataset.zoom), true);
-}
-
-// iframe load hone ke baad saved scale bhejo
-function sendSavedScale() {
-  const prefs = loadPrefs();
-  if (prefs.zoom && prefs.zoom !== 1.0) {
-    setTimeout(() => applyScale(prefs.zoom, false), 800);
-  }
-}
-
-// ── PANEL ─────────────────────────────────────────────────
-function toggleSettings() {
-  panelOpen ? closeSettings() : openSettings();
-}
-
-function openSettings() {
+/* ── Settings panel ─────────────────────────────────────────── */
+function toggleSettings(){ panelOpen ? closeSettings() : openSettings(); }
+function openSettings(){
   panelOpen = true;
-  const panel = document.getElementById('settings-panel');
-  const ov    = document.getElementById('settings-overlay');
-  panel.style.display = 'block';
-  // Force reflow
-  void panel.offsetHeight;
-  panel.classList.add('show');
-  ov.classList.add('show');
+  document.getElementById('settings-panel').classList.add('show');
+  document.getElementById('settings-overlay').classList.add('show');
   document.getElementById('settingsBtn').textContent = '✕';
 }
-
-function closeSettings() {
+function closeSettings(){
   panelOpen = false;
   document.getElementById('settings-panel').classList.remove('show');
   document.getElementById('settings-overlay').classList.remove('show');
   document.getElementById('settingsBtn').textContent = '⚙';
-  setTimeout(() => {
-    if (!panelOpen) document.getElementById('settings-panel').style.display = 'none';
-  }, 220);
 }
 
-function reloadApp() {
+function reloadApp(){
   closeSettings();
   const frame = document.getElementById('app-frame');
-  setTimeout(() => {
-    frame.src = APP_CONFIG.APP_URL;
-    frame.addEventListener('load', () => { sendSavedScale(); }, { once: true });
-  }, 100);
+  frame.src = APP_CONFIG.APP_URL;
 }
-
-function resetSettings() {
-  applyTheme(true, true);
-  applyScale(1.0, true);
+function resetAll(){
+  localStorage.removeItem(GB_PREFS);
+  setLauncherTheme('dark', true);
   closeSettings();
 }
 
-// ── BOOT ──────────────────────────────────────────────────
-(function boot() {
-  // Restore saved prefs instantly
-  const prefs = loadPrefs();
-  if (prefs.dark === false) applyTheme(false, false);
-  // Scale: button state update karo (message baad mein jayega iframe load ke baad)
-  if (prefs.zoom) {
-    currentZoom = prefs.zoom;
-    document.querySelectorAll('.size-btn').forEach(b => {
-      b.classList.toggle('active', Math.abs(parseFloat(b.dataset.zoom) - prefs.zoom) < 0.01);
-    });
-  }
+/* ── Boot ───────────────────────────────────────────────────── */
+(function(){
+  // Restore saved prefs
+  const p = gbLoadPrefs();
+  if(p.theme) setLauncherTheme(p.theme, true);
 
   // Splash text
   document.getElementById('splashTitle').textContent = APP_CONFIG.APP_NAME;
@@ -494,63 +223,35 @@ function resetSettings() {
   const splash = document.getElementById('splash');
   const frame  = document.getElementById('app-frame');
 
-  const msgs = [[0,'Connecting to server...'],[30,'Loading data...'],[60,'Preparing interface...'],[85,'Almost ready...']];
+  const msgs = [[0,'Connecting...'],[30,'Loading data...'],[60,'Preparing...'],[85,'Almost ready...']];
   let pct = 0;
-  const timer = setInterval(() => {
-    pct = Math.min(pct + (pct < 70 ? 2 : 0.5), 95);
-    bar.style.width = pct + '%';
-    const m = msgs.slice().reverse().find(([p]) => pct >= p);
-    if (m) msg.textContent = m[1];
-  }, 80);
+  const timer = setInterval(()=>{
+    pct = Math.min(pct+(pct<70?2:.5), 95);
+    bar.style.width = pct+'%';
+    const m = msgs.slice().reverse().find(([p])=>pct>=p);
+    if(m) msg.textContent = m[1];
+  },80);
+
+  function hideSplash(){
+    clearInterval(timer);
+    bar.style.width='100%'; msg.textContent='Ready!';
+    setTimeout(()=>splash.classList.add('hide'),300);
+    setTimeout(()=>splash.style.display='none',750);
+  }
 
   frame.src = APP_CONFIG.APP_URL;
-
-  frame.addEventListener('load', () => {
-    clearInterval(timer);
-    bar.style.width = '100%';
-    msg.textContent = 'Ready!';
-    setTimeout(() => splash.classList.add('hide'), 300);
-    setTimeout(() => splash.style.display = 'none', 750);
-    // iframe load ke baad saved scale bhejo
-    sendSavedScale();
-  });
-
-  setTimeout(() => {
-    if (!splash.classList.contains('hide')) {
-      clearInterval(timer);
-      bar.style.width = '100%';
-      splash.classList.add('hide');
-      setTimeout(() => splash.style.display = 'none', 500);
-      // Fallback: scale bhejo
-      sendSavedScale();
-    }
-  }, 8000);
+  frame.addEventListener('load', hideSplash);
+  setTimeout(()=>{ if(!splash.classList.contains('hide')) hideSplash(); }, 8000);
 })();
 </script>
 
 <!-- PWA Manifest -->
 <script>
 (function(){
-  const m = {
-    name: APP_CONFIG.APP_NAME,
-    short_name: APP_CONFIG.APP_SHORT,
-    description: APP_CONFIG.DEPT,
-    start_url: './',
-    display: 'standalone',
-    orientation: 'any',
-    background_color: '#0F1923',
-    theme_color: '#0F1923',
-    icons:[{
-      src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%230F1923'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-size='320'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E",
-      sizes:'512x512',type:'image/svg+xml',purpose:'any maskable'
-    }]
-  };
-  const b = new Blob([JSON.stringify(m)],{type:'application/manifest+json'});
-  const l = document.createElement('link');
-  l.rel='manifest'; l.href=URL.createObjectURL(b);
-  document.head.appendChild(l);
+  const m={name:APP_CONFIG.APP_NAME,short_name:APP_CONFIG.APP_SHORT,description:APP_CONFIG.DEPT,start_url:'./',display:'standalone',orientation:'any',background_color:'#0F1923',theme_color:'#0F1923',icons:[{src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%230F1923'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-size='320'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E",sizes:'512x512',type:'image/svg+xml',purpose:'any maskable'}]};
+  const b=new Blob([JSON.stringify(m)],{type:'application/manifest+json'});
+  const l=document.createElement('link');l.rel='manifest';l.href=URL.createObjectURL(b);document.head.appendChild(l);
 })();
 </script>
-
 </body>
 </html>
