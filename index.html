@@ -69,9 +69,18 @@ body.light .sp-hdr-title{color:#1E293B}
 body.light .theme-btn{background:#F1F5F9;border-color:#E2E8F0;color:#64748B}
 body.light .theme-btn.active{border-color:#2563EB;color:#2563EB;background:#DBEAFE}
 
-/* Note for font size */
-.sp-note{background:rgba(37,99,235,.1);border:1px solid rgba(59,130,246,.2);border-radius:10px;padding:12px 14px;font-size:13px;color:#93C5FD;line-height:1.5}
-body.light .sp-note{background:#DBEAFE;border-color:#93C5FD;color:#1E40AF}
+/* Font slider */
+.font-slider-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.font-lbl{font-weight:700;color:#64748B;flex-shrink:0}
+input[type=range]{flex:1;-webkit-appearance:none;height:4px;border-radius:2px;background:rgba(255,255,255,.12);outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#3B82F6;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.4)}
+body.light input[type=range]{background:#CBD5E1}
+.font-val-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.font-val-lbl{font-size:11px;color:#64748B}
+#fontValDisplay{font-family:monospace;font-size:13px;font-weight:700;color:#F1F5F9;background:rgba(255,255,255,.07);padding:3px 10px;border-radius:7px}
+body.light #fontValDisplay{color:#1E293B;background:#F1F5F9}
+.font-preview-box{padding:11px 13px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#94A3B8;line-height:1.6;margin-top:2px}
+body.light .font-preview-box{background:#F8FAFC;border-color:#E2E8F0;color:#64748B}
 
 /* Footer buttons */
 .sp-footer{padding:12px 18px 20px;border-top:1px solid rgba(255,255,255,.07);display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -121,13 +130,22 @@ body.light .sp-footer-btn:hover{background:#E2E8F0;color:#1E293B}
       </div>
     </div>
 
-    <!-- Font size note -->
+    <!-- Font Size slider — postMessage se app ko bhi bhejega -->
     <div class="sp-sec">
       <span class="sp-lbl">🔡 Text Size</span>
-      <div class="sp-note">
-        Text size app ke <b>andar</b> settings se control hoti hai.<br><br>
-        App kholne ke baad → <b>⚙ Settings</b> icon → Font Size slider use karo.<br><br>
-        Setting save hoti hai — agli baar automatically same rahegi. 💾
+      <div class="font-slider-row">
+        <span class="font-lbl" style="font-size:12px">A</span>
+        <input type="range" id="gbFontSlider" min="12" max="20" step="1" value="14"
+               oninput="setGbFontSize(this.value)">
+        <span class="font-lbl" style="font-size:18px">A</span>
+      </div>
+      <div class="font-val-row">
+        <span class="font-val-lbl">Chhota</span>
+        <span id="fontValDisplay">14px</span>
+        <span class="font-val-lbl">Bada</span>
+      </div>
+      <div class="font-preview-box" id="gbFontPreview" style="font-size:14px">
+        ⚡ SP5 Electrical · Motor 35A1 · RUNNING
       </div>
     </div>
 
@@ -181,7 +199,29 @@ function setLauncherTheme(t, noSave){
   if(!noSave) gbSavePrefs({theme:t});
 }
 
-/* ── Settings panel ─────────────────────────────────────────── */
+/* ── Font size — postMessage se iframe ko bhi bhejo ─────────── */
+let gbFontSize = 14;
+function setGbFontSize(v, noSave){
+  v = parseInt(v) || 14;
+  gbFontSize = v;
+  document.getElementById('gbFontSlider').value   = v;
+  document.getElementById('fontValDisplay').textContent = v + 'px';
+  document.getElementById('gbFontPreview').style.fontSize = v + 'px';
+  // iframe ke andar app ko postMessage bhejo — --fs variable update hoga
+  const frame = document.getElementById('app-frame');
+  try {
+    frame.contentWindow.postMessage({ type:'SP5_FONT_SIZE', px: v }, '*');
+  } catch(e){}
+  if(!noSave) gbSavePrefs({ fontSize: v });
+}
+
+// iframe load hone ke baad saved font size bhejo
+function sendSavedFontSize(){
+  const p = gbLoadPrefs();
+  if(p.fontSize) {
+    setTimeout(()=> setGbFontSize(p.fontSize, false), 600);
+  }
+}
 function toggleSettings(){ panelOpen ? closeSettings() : openSettings(); }
 function openSettings(){
   panelOpen = true;
@@ -204,6 +244,7 @@ function reloadApp(){
 function resetAll(){
   localStorage.removeItem(GB_PREFS);
   setLauncherTheme('dark', true);
+  setGbFontSize(14, true);
   closeSettings();
 }
 
@@ -211,7 +252,13 @@ function resetAll(){
 (function(){
   // Restore saved prefs
   const p = gbLoadPrefs();
-  if(p.theme) setLauncherTheme(p.theme, true);
+  if(p.theme)    setLauncherTheme(p.theme, true);
+  if(p.fontSize) {
+    document.getElementById('gbFontSlider').value = p.fontSize;
+    document.getElementById('fontValDisplay').textContent = p.fontSize + 'px';
+    document.getElementById('gbFontPreview').style.fontSize = p.fontSize + 'px';
+    gbFontSize = p.fontSize;
+  }
 
   // Splash text
   document.getElementById('splashTitle').textContent = APP_CONFIG.APP_NAME;
@@ -240,8 +287,8 @@ function resetAll(){
   }
 
   frame.src = APP_CONFIG.APP_URL;
-  frame.addEventListener('load', hideSplash);
-  setTimeout(()=>{ if(!splash.classList.contains('hide')) hideSplash(); }, 8000);
+  frame.addEventListener('load', ()=>{ hideSplash(); sendSavedFontSize(); });
+  setTimeout(()=>{ if(!splash.classList.contains('hide')){ hideSplash(); sendSavedFontSize(); } }, 8000);
 })();
 </script>
 
